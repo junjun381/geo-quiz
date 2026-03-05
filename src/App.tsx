@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import * as d3 from 'd3'
 import * as topojson from 'topojson-client'
-import { countryNames, languages } from './data/countries'
+import { countryNames, regionCountries, languages } from './data/countries'
 import './App.css'
 
 // 地域の定義
@@ -17,6 +17,7 @@ const regions = {
 }
 
 type RegionKey = keyof typeof regions
+type GameMode = 'explore' | 'quiz'
 
 // 国コードの変換マップ（数値ID → ISO3）
 const numericToISO3: Record<number, string> = {
@@ -50,6 +51,11 @@ const numericToISO3: Record<number, string> = {
   858: "URY", 860: "UZB", 862: "VEN", 887: "YEM", 894: "ZMB", 90: "SLB"
 }
 
+// ISO3 → 数値ID の逆引きマップ
+const iso3ToNumeric: Record<string, number> = Object.fromEntries(
+  Object.entries(numericToISO3).map(([k, v]) => [v, parseInt(k)])
+)
+
 function App() {
   const svgRef = useRef<SVGSVGElement>(null)
   const [worldData, setWorldData] = useState<any>(null)
@@ -57,6 +63,14 @@ function App() {
   const [language1, setLanguage1] = useState('ja')
   const [language2, setLanguage2] = useState('')
   const [hoveredCountry, setHoveredCountry] = useState<string | null>(null)
+  
+  // クイズ関連のstate
+  const [gameMode, setGameMode] = useState<GameMode>('explore')
+  const [currentQuestion, setCurrentQuestion] = useState<string | null>(null)
+  const [score, setScore] = useState(0)
+  const [totalQuestions, setTotalQuestions] = useState(0)
+  const [remainingCountries, setRemainingCountries] = useState<string[]>([])
+  const [feedback, setFeedback] = useState<{ type: 'correct' | 'wrong', message: string } | null>(null)
 
   // 地図データを読み込む
   useEffect(() => {
@@ -68,9 +82,8 @@ function App() {
   }, [])
 
   // 国名を取得する関数
-  const getCountryName = (numericId: number): string => {
-    const iso3 = numericToISO3[numericId]
-    if (!iso3 || !countryNames[iso3]) return `Unknown (${numericId})`
+  const getCountryName = useCallback((iso3: string): string => {
+    if (!countryNames[iso3]) return `Unknown`
     
     const name1 = countryNames[iso3][language1] || countryNames[iso3]['en']
     if (language2 && language2 !== language1) {
@@ -78,6 +91,50 @@ function App() {
       return `${name1} / ${name2}`
     }
     return name1
+  }, [language1, language2])
+
+  // 数値IDから国名を取得
+  const getCountryNameFromNumeric = useCallback((numericId: number): string => {
+    const iso3 = numericToISO3[numericId]
+    if (!iso3) return `Unknown (${numericId})`
+    return getCountryName(iso3)
+  }, [getCountryName])
+
+  // クイズを開始する
+  const startQuiz = () => {
+    if (currentRegion === 'world') {
+      alert('地域を選択してください（世界全体ではクイズできません）')
+      return
+    }
+    
+    const countries = regionCountries[currentRegion] || []
+    const availableCountries = countries.filter(c => countryNames[c])
+    
+    if (availableCountries.length === 0) {
+      alert('この地域にはクイズ対象の国がありません')
+      return
+    }
+    
+    setGameMode('quiz')
+    setScore(0)
+    setTotalQuestions(0)
+    setRemainingCountries([...availableCountries].sort(() => Math.random() - 0.5))
+    setFeedback(null)
+  }
+
+  // 次の問題を出題
+  useEffect(() => {
+    if (gameMode === 'quiz' && remainingCountries.length > 0 && !currentQuestion) {
+      setCurrentQuestion(remainingCountries[0])
+    }
+  }, [gameMode, remainingCountries, currentQuestion])
+
+  // クイズを終了する
+  const endQuiz = () => {
+    setGameMode('explore')
+    setCurrentQuestion(null)
+    setRemainingCountries([])
+    setFeedback(null)
   }
 
   // 地図を描画する
@@ -106,25 +163,66 @@ function App() {
       .enter()
       .append('path')
       .attr('d', path as any)
-      .attr('fill', '#69b3a2')
+      .attr('fill', (d: any) => {
+        // クイズモードで正解の国をハイライトしない（通常色）
+        return '#69b3a2'
+      })
       .attr('stroke', '#fff')
       .attr('stroke-width', 0.5)
       .attr('cursor', 'pointer')
       .on('mouseover', function(event, d: any) {
         d3.select(this).attr('fill', '#ffa500')
         const numericId = parseInt(d.id)
-        setHoveredCountry(getCountryName(numericId))
+        if (gameMode === 'explore') {
+          setHoveredCountry(getCountryNameFromNumeric(numericId))
+        }
       })
       .on('mouseout', function() {
         d3.select(this).attr('fill', '#69b3a2')
-        setHoveredCountry(null)
+        if (gameMode === 'explore') {
+          setHoveredCountry(null)
+        }
       })
       .on('click', function(event, d: any) {
         const numericId = parseInt(d.id)
-        alert(getCountryName(numericId))
+        const clickedISO3 = numericToISO3[numericId]
+        
+        if (gameMode === 'quiz' && currentQuestion) {
+          setTotalQuestions(prev => prev + 1)
+          
+          if (clickedISO3 === currentQuestion) {
+            // 正解
+            setScore(prev => prev + 1)
+            setFeedback({ type: 'correct', message: '正解！ 🎉' })
+            
+            // 次の問題へ
+            setTimeout(() => {
+              const newRemaining = remainingCountries.slice(1)
+              setRemainingCountries(newRemaining)
+              setCurrentQuestion(null)
+              setFeedback(null)
+              
+              if (newRemaining.length === 0) {
+                // クイズ終了
+                setTimeout(() => {
+                  alert(`クイズ終了！\nスコア: ${score + 1} / ${totalQuestions + 1}`)
+                  endQuiz()
+                }, 500)
+              }
+            }, 1000)
+          } else {
+            // 不正解
+            const correctName = getCountryName(currentQuestion)
+            const clickedName = clickedISO3 ? getCountryName(clickedISO3) : 'Unknown'
+            setFeedback({ type: 'wrong', message: `残念... ${clickedName} ではありません` })
+          }
+        } else if (gameMode === 'explore') {
+          // 探索モードではクリックで国名を表示
+          alert(getCountryNameFromNumeric(numericId))
+        }
       })
 
-  }, [worldData, currentRegion, language1, language2])
+  }, [worldData, currentRegion, gameMode, currentQuestion, getCountryNameFromNumeric, getCountryName, remainingCountries, score, totalQuestions])
 
   return (
     <div className="app">
@@ -154,21 +252,56 @@ function App() {
         {Object.entries(regions).map(([key, value]) => (
           <button
             key={key}
-            onClick={() => setCurrentRegion(key as RegionKey)}
+            onClick={() => {
+              setCurrentRegion(key as RegionKey)
+              if (gameMode === 'quiz') endQuiz()
+            }}
             className={currentRegion === key ? 'active' : ''}
+            disabled={gameMode === 'quiz'}
           >
             {value.name}
           </button>
         ))}
       </div>
 
-      <div className="country-name-display">
-        {hoveredCountry || '国にカーソルを合わせてください'}
-      </div>
+      {gameMode === 'explore' ? (
+        <>
+          <div className="country-name-display">
+            {hoveredCountry || '国にカーソルを合わせてください'}
+          </div>
+          
+          <button className="quiz-start-button" onClick={startQuiz}>
+            🎯 クイズを始める
+          </button>
+        </>
+      ) : (
+        <div className="quiz-panel">
+          <div className="quiz-question">
+            <span className="quiz-label">この国をクリック:</span>
+            <span className="quiz-country-name">{currentQuestion ? getCountryName(currentQuestion) : ''}</span>
+          </div>
+          
+          <div className="quiz-score">
+            スコア: {score} / {totalQuestions} | 残り: {remainingCountries.length}問
+          </div>
+          
+          {feedback && (
+            <div className={`quiz-feedback ${feedback.type}`}>
+              {feedback.message}
+            </div>
+          )}
+          
+          <button className="quiz-end-button" onClick={endQuiz}>
+            クイズを終了
+          </button>
+        </div>
+      )}
 
       <svg ref={svgRef} width={800} height={500}></svg>
-   <p className="note">
-        ※ 一部の地域（係争地・未承認国など）は「Unknown」と表示されます
+      
+      <p className="note">
+        ※ 一部の地域（係争地・未承認国など）は「Unknown」と表示されます<br />
+        ※ 地図データはNatural Earthに基づいています。表示される境界線は日本政府の公式見解とは異なる場合があります。
       </p>
     </div>
   )
