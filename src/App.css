@@ -23,11 +23,35 @@ h1 {
   font-size: 2rem;
 }
 
+.language-selector {
+  display: flex;
+  gap: 20px;
+  margin: 20px 0;
+  justify-content: center;
+}
+
+.language-selector label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.language-selector select {
+  padding: 8px 12px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 6px;
+  background-color: #16213e;
+  color: #fff;
+  cursor: pointer;
+}
+
 .region-buttons {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-bottom: 20px;
+  margin: 15px 0;
   justify-content: center;
 }
 
@@ -50,46 +74,28 @@ h1 {
   background-color: #e94560;
 }
 
-svg {
-  background-color: #0f3460;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-}
-.language-selector {
-  display: flex;
-  gap: 20px;
-  margin-bottom: 15px;
-}
-
-.language-selector label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.9rem;
-}
-
-.language-selector select {
-  padding: 8px 12px;
-  font-size: 1rem;
-  border: none;
-  border-radius: 6px;
-  background-color: #16213e;
-  color: #fff;
-  cursor: pointer;
+.region-buttons button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .country-name-display {
   background-color: #16213e;
   padding: 12px 24px;
   border-radius: 8px;
-  margin-bottom: 15px;
+  margin: 15px 0;
   font-size: 1.2rem;
   min-width: 300px;
   text-align: center;
+}
+
+svg {
+  background-color: #0f3460;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .note {
   margin-top: 15px;
   font-size: 0.85rem;
   color: #888;
-}
