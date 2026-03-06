@@ -99,3 +99,127 @@ svg {
   margin-top: 15px;
   font-size: 0.85rem;
   color: #888;
+}
+
+.quiz-mode-buttons {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.quiz-start-button {
+  padding: 12px 24px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #e94560, #c73652);
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.quiz-start-button:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+
+.quiz-start-button.secondary {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+}
+
+.quiz-start-button.fill-in {
+  background: linear-gradient(135deg, #27ae60, #1e8449);
+}
+
+.quiz-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin: 15px 0;
+  width: 100%;
+  max-width: 600px;
+}
+
+.quiz-question {
+  background-color: #16213e;
+  padding: 16px 24px;
+  border-radius: 8px;
+  text-align: center;
+  width: 100%;
+}
+
+.quiz-label {
+  font-size: 1rem;
+  color: #aaa;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.quiz-country-name {
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: #ffa500;
+}
+
+.quiz-choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+}
+
+.quiz-choice-button {
+  padding: 12px 20px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  background-color: #0f3460;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.quiz-choice-button:hover {
+  background-color: #1a4a7a;
+  transform: scale(1.02);
+}
+
+.quiz-score {
+  font-size: 1rem;
+  color: #aaa;
+}
+
+.quiz-feedback {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.quiz-feedback.correct {
+  background-color: #1e8449;
+  color: #fff;
+}
+
+.quiz-feedback.wrong {
+  background-color: #922b21;
+  color: #fff;
+}
+
+.quiz-end-button {
+  padding: 10px 24px;
+  font-size: 0.95rem;
+  border: none;
+  border-radius: 8px;
+  background-color: #555;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.quiz-end-button:hover {
+  background-color: #777;
+}
