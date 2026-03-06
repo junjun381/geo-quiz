@@ -51,11 +51,6 @@ const numericToISO3: Record<number, string> = {
   858: "URY", 860: "UZB", 862: "VEN", 887: "YEM", 894: "ZMB", 90: "SLB"
 }
 
-// ISO3 → 数値ID の逆引きマップ
-const iso3ToNumeric: Record<string, number> = Object.fromEntries(
-  Object.entries(numericToISO3).map(([k, v]) => [v, parseInt(k)])
-)
-
 function App() {
   const svgRef = useRef<SVGSVGElement>(null)
   const [worldData, setWorldData] = useState<any>(null)
