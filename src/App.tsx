@@ -347,8 +347,7 @@ function App() {
             setFeedback(null)
           }
         } else if (gameMode === 'explore') {
-          // 探索モードではクリックで国名を表示
-          alert(getCountryNameFromNumeric(numericId))
+          setHoveredCountry(getCountryNameFromNumeric(numericId))
         }
       })
 
@@ -397,7 +396,7 @@ function App() {
       {gameMode === 'explore' ? (
         <>
           <div className="country-name-display">
-            {hoveredCountry || '国にカーソルを合わせてください'}
+            {hoveredCountry || '国をタップ/ホバーして確認'}
           </div>
 
           <div className="quiz-mode-buttons">
@@ -485,7 +484,7 @@ function App() {
         </div>
       )}
 
-      <svg ref={svgRef} width={800} height={500}></svg>
+      <svg ref={svgRef} viewBox="0 0 800 500" style={{width: '100%', height: 'auto'}}></svg>
 
       <p className="note">
         ※ 一部の地域（係争地・未承認国など）は「Unknown」と表示されます<br />
