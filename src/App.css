@@ -85,20 +85,75 @@ h1 {
   border-radius: 8px;
   margin: 15px 0;
   font-size: 1.2rem;
-  min-width: 300px;
+  width: 100%;
+  max-width: 600px;
   text-align: center;
+  box-sizing: border-box;
 }
 
 svg {
   background-color: #0f3460;
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  max-width: 800px;
+  touch-action: manipulation;
 }
 
 .note {
   margin-top: 15px;
   font-size: 0.85rem;
   color: #888;
+  text-align: center;
+  padding: 0 10px;
+}
+
+@media (max-width: 600px) {
+  h1 {
+    font-size: 1.4rem;
+    margin-bottom: 12px;
+  }
+
+  .app {
+    padding: 12px;
+  }
+
+  .language-selector {
+    gap: 12px;
+    margin: 12px 0;
+    flex-wrap: wrap;
+  }
+
+  .language-selector label {
+    font-size: 0.85rem;
+  }
+
+  .language-selector select {
+    padding: 6px 8px;
+    font-size: 0.9rem;
+  }
+
+  .region-buttons button {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+
+  .quiz-start-button {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+  }
+
+  .quiz-country-name {
+    font-size: 1.3rem;
+  }
+
+  .quiz-choice-button {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+
+  .quiz-end-button {
+    padding: 10px 20px;
+  }
 }
 
 .quiz-mode-buttons {
