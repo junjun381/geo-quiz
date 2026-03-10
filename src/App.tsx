@@ -58,6 +58,11 @@ function App() {
   const [language1, setLanguage1] = useState('ja')
   const [language2, setLanguage2] = useState('')
   const [hoveredCountry, setHoveredCountry] = useState<string | null>(null)
+  const [isZoomed, setIsZoomed] = useState(false)
+  const [showHelp, setShowHelp] = useState(false)
+  const zoomRef = useRef<any>(d3.zoomIdentity)
+  const zoomBehaviorRef = useRef<any>(null)
+  const prevRegionRef = useRef<RegionKey>('world')
 
   // クイズ関連のstate
   const [gameMode, setGameMode] = useState<GameMode>('explore')
@@ -227,6 +232,15 @@ function App() {
     }
   }
 
+  const resetZoom = () => {
+    if (!svgRef.current || !zoomBehaviorRef.current) return
+    zoomRef.current = d3.zoomIdentity
+    d3.select(svgRef.current)
+      .transition().duration(400)
+      .call(zoomBehaviorRef.current.transform, d3.zoomIdentity)
+    setIsZoomed(false)
+  }
+
   const endQuiz = () => {
     setGameMode('explore')
     setCurrentQuestion(null)
@@ -247,6 +261,13 @@ function App() {
 
     svg.selectAll('*').remove()
 
+    // 地域が変わったらズームをリセット
+    if (prevRegionRef.current !== currentRegion) {
+      zoomRef.current = d3.zoomIdentity
+      prevRegionRef.current = currentRegion
+      setIsZoomed(false)
+    }
+
     const region = regions[currentRegion]
     const projection = d3.geoMercator()
       .center(region.center)
@@ -257,8 +278,22 @@ function App() {
 
     const countries = topojson.feature(worldData, worldData.objects.countries) as any
 
-    svg.append('g')
-      .selectAll('path')
+    const g = svg.append('g')
+    g.attr('transform', zoomRef.current.toString())
+
+    const zoom = d3.zoom()
+      .scaleExtent([1, 8])
+      .on('zoom', (event: any) => {
+        zoomRef.current = event.transform
+        g.attr('transform', event.transform.toString())
+        setIsZoomed(event.transform.k > 1.01 || event.transform.x !== 0 || event.transform.y !== 0)
+      })
+
+    zoomBehaviorRef.current = zoom
+    svg.call(zoom)
+    svg.call(zoom.transform, zoomRef.current)
+
+    g.selectAll('path')
       .data(countries.features)
       .enter()
       .append('path')
@@ -484,12 +519,62 @@ function App() {
         </div>
       )}
 
-      <svg ref={svgRef} viewBox="0 0 800 500" style={{width: '100%', height: 'auto'}}></svg>
+      <div className="help-section">
+        <button className="help-toggle" onClick={() => setShowHelp(v => !v)}>
+          使い方 {showHelp ? '▲' : '▼'}
+        </button>
+        {showHelp && (
+          <div className="help-content">
+            <div className="help-group">
+              <span className="help-icon">🗺️</span>
+              <div>
+                <strong>地図操作</strong>
+                <ul>
+                  <li>ズーム: ピンチ（スマホ）/ スクロール（PC）</li>
+                  <li>移動: スワイプ / ドラッグ</li>
+                </ul>
+              </div>
+            </div>
+            <div className="help-group">
+              <span className="help-icon">🎯</span>
+              <div>
+                <strong>クイズ</strong>
+                <ul>
+                  <li>国名→地図: 該当する国をタップ</li>
+                  <li>地図→国名: 選択肢をタップ</li>
+                  <li>穴埋め: グレーの国をタップして答える</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="map-container">
+        {isZoomed && (
+          <button className="zoom-reset-button" onClick={resetZoom}>
+            ↺ リセット
+          </button>
+        )}
+        <svg ref={svgRef} viewBox="0 0 800 500" style={{width: '100%', height: 'auto'}}></svg>
+      </div>
 
       <p className="note">
         ※ 一部の地域（係争地・未承認国など）は「Unknown」と表示されます<br />
         ※ 地図データはNatural Earthに基づいています。表示される境界線は日本政府の公式見解とは異なる場合があります。
       </p>
+
+      <footer className="app-footer">
+        <p>このアプリが役に立ったら、応援していただけると嬉しいです！</p>
+        <a
+          href="https://ofuse.me/7a2e33c9"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="ofuse-button"
+        >
+          ☕ OFUSEで応援する
+        </a>
+      </footer>
     </div>
   )
 }

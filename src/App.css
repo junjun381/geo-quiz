@@ -16,6 +16,7 @@ body {
   flex-direction: column;
   align-items: center;
   padding: 20px;
+  width: 100%;
 }
 
 h1 {
@@ -91,12 +92,101 @@ h1 {
   box-sizing: border-box;
 }
 
+.help-section {
+  width: 100%;
+  max-width: 800px;
+  margin-bottom: 8px;
+}
+
+.help-toggle {
+  background: none;
+  border: 1px solid #444;
+  color: #aaa;
+  font-size: 0.85rem;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.help-toggle:hover {
+  color: #fff;
+  border-color: #888;
+}
+
+.help-content {
+  margin-top: 10px;
+  background-color: #16213e;
+  border-radius: 8px;
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.help-group {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.help-icon {
+  font-size: 1.2rem;
+  margin-top: 2px;
+}
+
+.help-content strong {
+  display: block;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+  color: #ddd;
+}
+
+.help-content ul {
+  margin: 0;
+  padding-left: 16px;
+  color: #aaa;
+  font-size: 0.85rem;
+  line-height: 1.7;
+}
+
+.map-container {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+}
+
 svg {
   background-color: #0f3460;
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  max-width: 800px;
-  touch-action: manipulation;
+  width: 100%;
+  touch-action: none;
+  cursor: grab;
+  display: block;
+}
+
+svg:active {
+  cursor: grabbing;
+}
+
+.zoom-reset-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+}
+
+.zoom-reset-button:hover {
+  background-color: rgba(255, 255, 255, 0.25);
 }
 
 .note {
@@ -277,4 +367,36 @@ svg {
 
 .quiz-end-button:hover {
   background-color: #777;
+}
+
+.app-footer {
+  margin-top: 30px;
+  padding: 20px;
+  text-align: center;
+  border-top: 1px solid #2a2a4a;
+  width: 100%;
+  max-width: 800px;
+}
+
+.app-footer p {
+  font-size: 0.9rem;
+  color: #aaa;
+  margin-bottom: 12px;
+}
+
+.ofuse-button {
+  display: inline-block;
+  padding: 12px 28px;
+  background: linear-gradient(135deg, #f7971e, #ffd200);
+  color: #1a1a2e;
+  font-weight: bold;
+  font-size: 1rem;
+  border-radius: 24px;
+  text-decoration: none;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.ofuse-button:hover {
+  opacity: 0.85;
+  transform: scale(1.04);
 }
